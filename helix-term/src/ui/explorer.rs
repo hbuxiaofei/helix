@@ -554,7 +554,7 @@ impl Component for Explorer {
 
         (|| -> Result<()> {
             match key_event {
-                key!(Esc) => self.unfocus(),
+                key!(Esc) | key!('e') => self.unfocus(),
                 key!('q') => self.close(),
                 key!('a') => self.new_create_file_or_directory_prompt(cx)?,
                 key!('d') => self.new_remove_prompt()?,
