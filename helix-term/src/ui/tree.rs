@@ -310,6 +310,32 @@ impl<T: TreeViewItem> TreeView<T> {
         Ok(())
     }
 
+    pub fn on_right(
+        &mut self,
+        cx: &mut Context,
+        params: &mut T::Params,
+        selected_index: usize,
+    ) -> Result<()> {
+        let selected_item = self.get_mut(selected_index)?;
+        if selected_item.is_opened {
+            return Ok(());
+        }
+        self.on_enter(cx, params, selected_index)
+    }
+
+    pub fn on_left(
+        &mut self,
+        cx: &mut Context,
+        params: &mut T::Params,
+        selected_index: usize,
+    ) -> Result<()> {
+        let selected_item = self.get_mut(selected_index)?;
+        if !selected_item.is_opened {
+            return Ok(());
+        }
+        self.on_enter(cx, params, selected_index)
+    }
+
     pub fn refresh(&mut self) -> Result<()> {
         self.tree.refresh()?;
         self.set_selected(self.selected);
@@ -539,8 +565,10 @@ impl<T: TreeViewItem + Clone> TreeView<T> {
             // TODO on_next_key, search, count
 
             match key_event {
-                key!('j') => self.move_down(1),
-                key!('k') => self.move_up(1),
+                key!('j') | key!(Down) => self.move_down(1),
+                key!('k') | key!(Up) => self.move_up(1),
+                key!(Left) => self.on_left(cx, params, self.selected)?,
+                key!(Right) => self.on_right(cx, params, self.selected)?,
                 key!(Enter) => self.on_enter(cx, params, self.selected)?,
 
                 _ => return Ok(EventResult::Ignored(None)),
